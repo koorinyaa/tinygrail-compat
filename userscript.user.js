@@ -281,11 +281,11 @@
               : null;
 
             const $issuePrice = $(
-              '<span id="tgc-issue-price" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs dark:bg-gray-800">发行价：--</span>',
+              '<span id="tgc-issue-price" class="hidden rounded bg-gray-100 px-1.5 py-0.5 text-xs dark:bg-gray-800 sm:inline-block">发行价：--</span>',
             );
-            const $gensokyo = $chips.find("#gensokyo");
-            if ($gensokyo.length > 0) {
-              $gensokyo.after($issuePrice);
+            const $total = $chips.find("#total");
+            if ($total.length > 0) {
+              $total.before($issuePrice);
             } else {
               $chips.append($issuePrice);
             }
@@ -337,13 +337,49 @@
                     });
                   }
                 })
-                .finally(() => {
+                .always(() => {
                   // 请求完成后移除标记
                   issuePriceRequestingKeys.delete(cacheKey);
                 });
             }
           },
         );
+      },
+      true,
+    );
+
+    // 在详情弹窗中添加发行价
+    waitForElement(
+      "#tg-trade-box-details-modal",
+      () => {
+        addElementToAll("#tg-trade-box-details-modal", ($modal) => {
+          // 检查是否已存在
+          if ($modal.find("#tgc-modal-issue-price").length > 0) return;
+
+          const characterId = $modal.attr("data-character-id");
+          const $listedDate = $modal.find("#tg-modal-listed-date");
+          const listedDateFull = $listedDate.attr("data-listed-date");
+          const listedDate = listedDateFull
+            ? listedDateFull.split("T")[0]
+            : null;
+
+          if (characterId && listedDate) {
+            const cacheKey = `${characterId}_${listedDate}`;
+
+            // 从localStorage读取缓存
+            const cacheStr = localStorage.getItem("tgc:issue-price-cache");
+            const cache = cacheStr ? JSON.parse(cacheStr) : {};
+
+            const issuePrice = cache[cacheKey] || "--";
+
+            const $value = $modal.find("#tg-modal-price #value");
+            if ($value.length > 0) {
+              $value.append(
+                ` <span id="tgc-modal-issue-price" class="text-[10px] text-gray-400 dark:text-gray-500">(发行价：₵${issuePrice})</span>`,
+              );
+            }
+          }
+        });
       },
       true,
     );
