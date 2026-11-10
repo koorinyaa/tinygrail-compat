@@ -162,9 +162,15 @@
             const cover = prompt("图片url(你可以复制已有圣殿图片的url)：");
             if (!cover) return;
 
+            const coverPath = cover.match(/cover\/[^\s?#]+?\.(?:jpg|gif|png)(?=!w\d+(?:[?#]|$)|[?#]|$)/i);
+            if (!coverPath) {
+              alert("请选择 JPG、GIF 或 PNG 格式的圣殿封面地址");
+              return;
+            }
+
             const url =
               "https://tinygrail.oss-cn-hangzhou.aliyuncs.com/" +
-              cover.match(/cover\/\S+\.jpg/)[0];
+              coverPath[0];
 
             post(`chara/temple/cover/${charaId}/${templeUserId}`, url).then(
               (d) => {
@@ -207,8 +213,8 @@
                         $detail.css("width", `${finalWidth}px`);
                       });
 
-                      // 更新图片源
-                      $img.attr("src", cover);
+                      // 使用原图，避免缩略图处理丢失动画或透明背景
+                      $img.attr("src", url);
                     }
                   });
                 } else {
@@ -231,9 +237,15 @@
               return;
             }
 
+            const coverPath = cover.match(/cover\/[^\s?#]+?\.(?:jpg|gif|png)(?=!w\d+(?:[?#]|$)|[?#]|$)/i);
+            if (!coverPath) {
+              alert("请选择 JPG、GIF 或 PNG 格式的圣殿封面地址");
+              return;
+            }
+
             const url =
               "https://tinygrail.oss-cn-hangzhou.aliyuncs.com/" +
-              cover.match(/cover\/\S+\.jpg/)[0];
+              coverPath[0];
 
             post(`chara/temple/cover/${charaId}`, url).then((d) => {
               if (d.State === 0) {
